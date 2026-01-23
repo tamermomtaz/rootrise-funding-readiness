@@ -213,8 +213,10 @@ This is an internal tool for DEVONEERS/RootRise. For suggestions or issues, cont
 
 ## 📜 License
 
-Proprietary - DEVONEERS © 2025
+Proprietary - DEVONEERS © 2026
 
+
+ 
 ---
 
 Built with ❤️ for RootRise's journey to Series A
