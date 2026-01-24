@@ -173,6 +173,20 @@ def db_session():
     finally:
         conn.close()
 
+def clean_row(row) -> dict:
+    """Convert SQLite row to dict, handling empty strings as None for datetime fields"""
+    d = dict(row)
+    # Fields that should be None instead of empty string
+    datetime_fields = ['deadline', 'due_date', 'created_at', 'updated_at', 'timestamp']
+    nullable_fields = ['url', 'notes', 'funding_amount', 'requirements', 'contact_info', 
+                       'owner', 'description', 'dependencies', 'details']
+    
+    for field in datetime_fields + nullable_fields:
+        if field in d and d[field] == '':
+            d[field] = None
+    
+    return d
+
 def init_db():
     """Initialize database with schema"""
     with db_session() as conn:
@@ -240,37 +254,37 @@ def seed_initial_data(cursor):
     # Initial opportunities aligned with RootRise Funding Readiness Dashboard
     opportunities = [
         # URGENT - Google for Startups MENA
-        ("Google for Startups MENA", "accelerator", "2026-01-30", "preparing", 80, 
+        ("Google for Startups MENA", "accelerator", "2026-01-30T00:00:00", "preparing", 80, 
          "https://startup.google.com/programs/accelerator/middle-east-north-africa-turkey/", 
          "Up to $350K GCP credits. URGENT: 7 days until deadline!", 
          "Up to $350K GCP credits", "Seed to Series A, product-market fit, AI/ML focus", None, 1),
         # Sanabil 500 MENA
-        ("Sanabil 500 MENA (Batch 11)", "accelerator", "2026-03-08", "preparing", 60, 
+        ("Sanabil 500 MENA (Batch 11)", "accelerator", "2026-03-08T00:00:00", "preparing", 60, 
          "https://500.co/mena", "Seed funding program. $35K program fee required.",
          "$35K program fee", "Early traction, MENA focus", None, 2),
         # EBRD Star Venture - TOP PRIORITY
-        ("EBRD Star Venture (Cohort 5)", "accelerator", "2026-04-15", "researching", 100, 
+        ("EBRD Star Venture (Cohort 5)", "accelerator", "2026-04-15T00:00:00", "researching", 100, 
          "https://www.ebrd.com/starventure", "18-month program, no equity. Primary target for RootRise.",
          "No equity, mentorship + network", "Egypt registration, <5 years old, tech focus, B2B", None, 1),
-        # Flat6Labs Cairo
+        # Flat6Labs Cairo - Rolling (no deadline)
         ("Flat6Labs Cairo", "accelerator", None, "researching", 60, 
          "https://flat6labs.com/cairo", "$10-20K for 10-20% equity. Rolling applications.",
          "$10-20K for 10-20% equity", "Egyptian founder, MVP required", None, 3),
-        # AUC Venture Lab
+        # AUC Venture Lab - Rolling (no deadline)
         ("AUC Venture Lab", "accelerator", None, "researching", 60, 
          "https://business.aucegypt.edu/research/vlab", "Egypt's first university accelerator. Cohort-based.",
          "Mentorship + workspace", "Innovation focus, Egyptian connection", None, 3),
-        # EBRD Innovation Programme
+        # EBRD Innovation Programme - Rolling (no deadline)
         ("EBRD Innovation Programme", "grant", None, "researching", 80, 
          "https://www.ebrd.com/what-we-do/sectors/advice-small-businesses/star-venture.html", 
          "Up to €30K grants. Component-based applications.",
          "Up to €30K", "EBRD country operations, SME focus", None, 2),
-        # Berytech ScaleSmart
+        # Berytech ScaleSmart - Rolling (no deadline)
         ("Berytech ScaleSmart", "accelerator", None, "researching", 60, 
          "https://berytech.org/", "Investor readiness program. Pre-applications open.",
          "Mentorship + investor access", "MENA startup, growth stage", None, 3),
         # Web Summit Qatar (Event)
-        ("Web Summit Qatar", "competition", "2026-01-27", "preparing", 50, 
+        ("Web Summit Qatar", "competition", "2026-01-27T00:00:00", "preparing", 50, 
          "https://qatar.websummit.com/", "Networking opportunity. Jan 26-27, 2026.",
          "Exposure + networking", "Startup pitch competition entry", None, 2),
     ]
@@ -284,7 +298,7 @@ def seed_initial_data(cursor):
     
     # Readiness items aligned with RootRise Funding Readiness Dashboard
     readiness_items = [
-        # COMPLETED Items (✓)
+        # COMPLETED Items (✓) - no due date needed
         ("Brand Identity", "documentation", "complete", "Tee", None, "Color system v6.5, 4 themes", 1, None, 100),
         ("Architecture Docs", "documentation", "complete", "Tee", None, "Complete technical blueprint", 1, None, 100),
         ("Agent System", "product", "complete", "Tee", None, "11 agents with prompts", 1, None, 100),
@@ -292,22 +306,22 @@ def seed_initial_data(cursor):
         ("Team Bios", "team", "complete", "Tee", None, "All founders documented", 2, None, 100),
         
         # IN PROGRESS Items (●)
-        ("Pitch Deck (10 slides)", "pitch", "in_progress", "Tee", "2026-02-15", "Simplified version needed. Target: 10 slides max.", 1, None, 60),
-        ("Financial Projections", "financial", "in_progress", "Rouba", "2026-02-28", "3-year model required", 1, None, 40),
+        ("Pitch Deck (10 slides)", "pitch", "in_progress", "Tee", "2026-02-15T00:00:00", "Simplified version needed. Target: 10 slides max.", 1, None, 60),
+        ("Financial Projections", "financial", "in_progress", "Rouba", "2026-02-28T00:00:00", "3-year model required", 1, None, 40),
         
         # NOT STARTED Items (○)
-        ("One-Pager", "pitch", "not_started", None, "2026-02-15", "Single A4 summary for quick investor review", 1, "Pitch Deck", 0),
-        ("Working Demo (MVD)", "product", "not_started", None, "2026-02-15", "Single flow Minimum Viable Demo", 1, None, 0),
-        ("Demo Video (2 min)", "pitch", "not_started", None, "2026-02-28", "Screen recording walkthrough", 2, "Working Demo", 0),
-        ("Customer Testimonials", "market", "not_started", None, "2026-03-31", "Target: 3 testimonials by March", 1, None, 0),
-        ("Case Studies", "market", "not_started", None, "2026-03-31", "Target: 2 detailed case studies by March", 1, "Customer Testimonials", 0),
+        ("One-Pager", "pitch", "not_started", None, "2026-02-15T00:00:00", "Single A4 summary for quick investor review", 1, "Pitch Deck", 0),
+        ("Working Demo (MVD)", "product", "not_started", None, "2026-02-15T00:00:00", "Single flow Minimum Viable Demo", 1, None, 0),
+        ("Demo Video (2 min)", "pitch", "not_started", None, "2026-02-28T00:00:00", "Screen recording walkthrough", 2, "Working Demo", 0),
+        ("Customer Testimonials", "market", "not_started", None, "2026-03-31T00:00:00", "Target: 3 testimonials by March", 1, None, 0),
+        ("Case Studies", "market", "not_started", None, "2026-03-31T00:00:00", "Target: 2 detailed case studies by March", 1, "Customer Testimonials", 0),
         
         # Additional readiness items for comprehensive tracking
         ("Company Registration", "legal", "complete", "Tee", None, "Egyptian commercial registration complete", 2, None, 100),
         ("Market Size Analysis", "market", "complete", "Rouba", None, "TAM/SAM/SOM for Egyptian SME market", 2, None, 100),
-        ("Competitive Analysis", "market", "in_progress", "Rouba", "2026-02-20", "Detailed competitor landscape", 2, None, 60),
-        ("First 5 Pilots", "operations", "not_started", None, "2026-02-28", "Target: 5 pilot SMEs by end of February", 1, "Working Demo", 0),
-        ("First Revenue", "financial", "not_started", None, "2026-03-31", "Target: $500 revenue by March", 1, "First 5 Pilots", 0),
+        ("Competitive Analysis", "market", "in_progress", "Rouba", "2026-02-20T00:00:00", "Detailed competitor landscape", 2, None, 60),
+        ("First 5 Pilots", "operations", "not_started", None, "2026-02-28T00:00:00", "Target: 5 pilot SMEs by end of February", 1, "Working Demo", 0),
+        ("First Revenue", "financial", "not_started", None, "2026-03-31T00:00:00", "Target: $500 revenue by March", 1, "First 5 Pilots", 0),
     ]
     
     for item in readiness_items:
@@ -379,7 +393,7 @@ async def get_opportunities(
         cursor.execute(query, params)
         rows = cursor.fetchall()
         
-        return [dict(row) for row in rows]
+        return [clean_row(row) for row in rows]
 
 @app.get("/api/opportunities/{opp_id}", response_model=Opportunity)
 async def get_opportunity(opp_id: int):
@@ -390,7 +404,7 @@ async def get_opportunity(opp_id: int):
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Opportunity not found")
-        return dict(row)
+        return clean_row(row)
 
 @app.post("/api/opportunities", response_model=Opportunity)
 async def create_opportunity(opp: OpportunityCreate):
@@ -412,7 +426,7 @@ async def create_opportunity(opp: OpportunityCreate):
         opp_id = cursor.lastrowid
         log_activity(cursor, "created", "opportunity", opp_id, f"Created opportunity: {opp.name}")
         cursor.execute("SELECT * FROM opportunities WHERE id = ?", (opp_id,))
-        return dict(cursor.fetchone())
+        return clean_row(cursor.fetchone())
 
 @app.put("/api/opportunities/{opp_id}", response_model=Opportunity)
 async def update_opportunity(opp_id: int, opp: OpportunityUpdate):
@@ -450,7 +464,7 @@ async def update_opportunity(opp_id: int, opp: OpportunityUpdate):
                         f"Updated fields: {', '.join(update_data.keys())}")
         
         cursor.execute("SELECT * FROM opportunities WHERE id = ?", (opp_id,))
-        return dict(cursor.fetchone())
+        return clean_row(cursor.fetchone())
 
 @app.delete("/api/opportunities/{opp_id}")
 async def delete_opportunity(opp_id: int):
@@ -498,7 +512,7 @@ async def get_readiness_items(
         cursor.execute(query, params)
         rows = cursor.fetchall()
         
-        return [dict(row) for row in rows]
+        return [clean_row(row) for row in rows]
 
 @app.get("/api/readiness-items/{item_id}", response_model=ReadinessItem)
 async def get_readiness_item(item_id: int):
@@ -509,7 +523,7 @@ async def get_readiness_item(item_id: int):
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Readiness item not found")
-        return dict(row)
+        return clean_row(row)
 
 @app.post("/api/readiness-items", response_model=ReadinessItem)
 async def create_readiness_item(item: ReadinessItemCreate):
@@ -530,7 +544,7 @@ async def create_readiness_item(item: ReadinessItemCreate):
         item_id = cursor.lastrowid
         log_activity(cursor, "created", "readiness_item", item_id, f"Created item: {item.name}")
         cursor.execute("SELECT * FROM readiness_items WHERE id = ?", (item_id,))
-        return dict(cursor.fetchone())
+        return clean_row(cursor.fetchone())
 
 @app.put("/api/readiness-items/{item_id}", response_model=ReadinessItem)
 async def update_readiness_item(item_id: int, item: ReadinessItemUpdate):
@@ -578,7 +592,7 @@ async def update_readiness_item(item_id: int, item: ReadinessItemUpdate):
                         f"Updated fields: {', '.join(update_data.keys())}")
         
         cursor.execute("SELECT * FROM readiness_items WHERE id = ?", (item_id,))
-        return dict(cursor.fetchone())
+        return clean_row(cursor.fetchone())
 
 @app.delete("/api/readiness-items/{item_id}")
 async def delete_readiness_item(item_id: int):
@@ -616,6 +630,7 @@ async def get_dashboard_stats():
         cursor.execute("""
             SELECT COUNT(*) FROM opportunities 
             WHERE deadline IS NOT NULL 
+            AND deadline != ''
             AND deadline <= ? 
             AND deadline >= ?
             AND status NOT IN ('submitted', 'accepted', 'rejected', 'closed')
@@ -680,12 +695,13 @@ async def get_dashboard_stats():
         cursor.execute("""
             SELECT * FROM readiness_items 
             WHERE due_date IS NOT NULL 
+            AND due_date != ''
             AND due_date <= ?
             AND status != 'complete'
             ORDER BY due_date ASC
             LIMIT 10
         """, (seven_days,))
-        urgent_items = [dict(row) for row in cursor.fetchall()]
+        urgent_items = [clean_row(row) for row in cursor.fetchall()]
         
         # Recent activity
         cursor.execute("""
@@ -693,7 +709,7 @@ async def get_dashboard_stats():
             ORDER BY timestamp DESC 
             LIMIT 10
         """)
-        recent_activity = [dict(row) for row in cursor.fetchall()]
+        recent_activity = [clean_row(row) for row in cursor.fetchall()]
         
         return DashboardStats(
             total_opportunities=total_opps,
@@ -720,7 +736,7 @@ async def get_activity_log(limit: int = Query(20, ge=1, le=100)):
             ORDER BY timestamp DESC 
             LIMIT ?
         """, (limit,))
-        return [dict(row) for row in cursor.fetchall()]
+        return [clean_row(row) for row in cursor.fetchall()]
 
 # ============================================
 # Utility Endpoints
