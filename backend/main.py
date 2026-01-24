@@ -356,6 +356,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Mount static files for PWA icons and manifest
+import os as os_module
+static_dir = os_module.path.join(os_module.path.dirname(__file__), "..", "frontend", "static")
+if os_module.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.on_event("startup")
 async def startup_event():
