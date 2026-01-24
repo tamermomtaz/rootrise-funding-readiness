@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime, timedelta
 from enum import Enum
@@ -356,7 +356,7 @@ async def get_opportunities(
     status: Optional[OpportunityStatus] = None,
     type: Optional[OpportunityType] = None,
     min_fit_score: Optional[int] = Query(None, ge=0, le=100),
-    sort_by: str = Query("deadline", pattern="^(deadline|fit_score|priority|created_at)$"),
+    sort_by: str = Query("deadline", regex="^(deadline|fit_score|priority|created_at)$"),
     sort_order: str = Query("asc", pattern="^(asc|desc)$")
 ):
     """Get all funding opportunities with optional filters"""
