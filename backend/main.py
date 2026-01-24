@@ -357,7 +357,7 @@ async def get_opportunities(
     type: Optional[OpportunityType] = None,
     min_fit_score: Optional[int] = Query(None, ge=0, le=100),
     sort_by: str = Query("deadline", regex="^(deadline|fit_score|priority|created_at)$"),
-    sort_order: str = Query("asc", pattern="^(asc|desc)$")
+    sort_order: str = Query("asc", regex="^(asc|desc)$")
 ):
     """Get all funding opportunities with optional filters"""
     with db_session() as conn:
@@ -475,8 +475,8 @@ async def get_readiness_items(
     status: Optional[ReadinessStatus] = None,
     category: Optional[ReadinessCategory] = None,
     owner: Optional[str] = None,
-    sort_by: str = Query("priority", pattern="^(due_date|priority|status|created_at|category)$"),
-    sort_order: str = Query("asc", pattern="^(asc|desc)$")
+    sort_by: str = Query("priority", regex="^(due_date|priority|status|created_at|category)$"),
+    sort_order: str = Query("asc", regex="^(asc|desc)$")
 ):
     """Get all readiness items with optional filters"""
     with db_session() as conn:
