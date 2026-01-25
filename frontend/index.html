@@ -185,6 +185,7 @@
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
         .toast { background: var(--navy-light); border: 1px solid rgba(184, 144, 74, 0.2); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; min-width: 300px; box-shadow: var(--shadow-card); animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .toast.success { border-left: 4px solid var(--success); }
         .toast.error { border-left: 4px solid var(--danger); }
         .toast.warning { border-left: 4px solid var(--warning); }
@@ -193,6 +194,8 @@
         .pulse-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .priority-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+        .btn-delete { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 4px 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.1); border-color: #EF4444; }
         .priority-1 { color: var(--danger); }
         .priority-2 { color: var(--warning); }
         .priority-3 { color: var(--info); }
@@ -424,7 +427,7 @@
         function createOpportunityCard(opp) {
             const fitClass = opp.fit_score >= 75 ? 'fit-high' : opp.fit_score >= 50 ? 'fit-medium' : 'fit-low';
             const deadlineInfo = getDeadlineInfo(opp.deadline);
-            return `<div class="opportunity-card" onclick="editOpportunity(${opp.id})"><div class="opp-header"><div><div class="opp-name">${opp.name}</div><div class="opp-type">${opp.type.replace('_', ' ')}</div></div><div class="opp-fit-score ${fitClass}">${opp.fit_score}</div></div><div class="opp-meta">${opp.deadline ? `<span class="opp-deadline ${deadlineInfo.class}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${deadlineInfo.text}</span>` : '<span class="opp-deadline">No deadline</span>'}${opp.funding_amount ? `<span>💰 ${opp.funding_amount}</span>` : ''}</div><div style="display: flex; justify-content: space-between; align-items: center;"><span class="opp-status status-${opp.status}">${opp.status.replace('_', ' ')}</span><span class="priority-badge priority-${opp.priority}">P${opp.priority}</span></div></div>`;
+            return `<div class="opportunity-card" onclick="editOpportunity(${opp.id})"><div class="opp-header"><div><div class="opp-name">${opp.name}</div><div class="opp-type">${opp.type.replace('_', ' ')}</div></div><div class="opp-fit-score ${fitClass}">${opp.fit_score}</div></div><div class="opp-meta">${opp.deadline ? `<span class="opp-deadline ${deadlineInfo.class}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${deadlineInfo.text}</span>` : '<span class="opp-deadline">No deadline</span>'}${opp.funding_amount ? `<span>💰 ${opp.funding_amount}</span>` : ''}</div><div style="display: flex; justify-content: space-between; align-items: center;"><span class="opp-status status-${opp.status}">${opp.status.replace('_', ' ')}</span><span class="priority-badge priority-${opp.priority}">P${opp.priority}</span><button onclick="event.stopPropagation(); deleteOpportunity(${opp.id}, '${opp.name.replace(/'/g, "\\'")}')" class="btn-delete" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>`;
         }
 
         function updateReadinessUI() {
@@ -491,7 +494,17 @@
         function filterReadiness(status) { currentReadinessFilter = status; document.querySelectorAll('#readiness-section .filter-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.filter === status); }); updateReadinessUI(); }
         function showSection(sectionId) { document.querySelectorAll('.section-content').forEach(section => { section.style.display = 'none'; }); document.getElementById(`${sectionId}-section`).style.display = 'block'; document.querySelectorAll('.nav-item').forEach(item => { item.classList.toggle('active', item.dataset.section === sectionId); }); }
         function showToast(message, type = 'info') { const container = document.getElementById('toast-container'), toast = document.createElement('div'); toast.className = `toast ${type}`; toast.textContent = message; container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000); }
-        async function refreshData() { await Promise.all([loadOpportunities(), loadReadinessItems(), loadDashboardStats(), loadActivityLog()]); }
+        async function deleteOpportunity(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?\n\nThis action cannot be undone.`)) return;
+            try { await fetchAPI(`/opportunities/${id}`, { method: 'DELETE' }); showToast(`"${name}" deleted`, 'success'); await refreshData(); } catch (e) { showToast('Failed to delete', 'error'); }
+        }
+        async function refreshData() { 
+            const btn = document.querySelector('button[onclick="refreshData()"]');
+            if (btn) { btn.disabled = true; btn.querySelector('svg').style.animation = 'spin 1s linear infinite'; }
+            await Promise.all([loadOpportunities(), loadReadinessItems(), loadDashboardStats(), loadActivityLog()]); 
+            if (btn) { btn.disabled = false; btn.querySelector('svg').style.animation = ''; }
+            showToast('Data refreshed!', 'success');
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nav-item, [data-section]').forEach(item => { item.addEventListener('click', (e) => { e.preventDefault(); const section = item.dataset.section; if (section) showSection(section); }); });
