@@ -37,6 +37,7 @@ class OpportunityStatus(str, Enum):
     CLOSED = "closed"
 
 class OpportunityType(str, Enum):
+    # Startup types
     ACCELERATOR = "accelerator"
     GRANT = "grant"
     VC_FUND = "vc_fund"
@@ -44,6 +45,13 @@ class OpportunityType(str, Enum):
     CORPORATE = "corporate"
     GOVERNMENT = "government"
     COMPETITION = "competition"
+    CLOUD_CREDITS = "cloud_credits"
+    # BD types
+    RFP = "rfp"
+    TENDER = "tender"
+    CONSULTING = "consulting"
+    PROCUREMENT = "procurement"
+    # Other
     OTHER = "other"
 
 class ReadinessStatus(str, Enum):
