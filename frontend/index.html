@@ -77,6 +77,7 @@
         .nav-badge { margin-left: auto; background: var(--teal); color: var(--navy); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
         .nav-badge.urgent { background: var(--danger); color: white; }
         .nav-badge.bd-badge { background: var(--bd-purple); color: var(--navy); }
+        .nav-badge.saved-badge { background: var(--warning); color: var(--navy); }
 
         /* ── Main Content ── */
         .main-content { flex: 1; margin-left: 280px; padding: 32px; max-width: 1400px; }
@@ -114,7 +115,7 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(184, 144, 74, 0.1); }
         .section-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: var(--cream); }
 
-        /* ── Pipeline Toggle (Two-Tier Nav) ── */
+        /* ── Pipeline Toggle ── */
         .pipeline-toggle { display: flex; gap: 4px; background: var(--navy); border: 1px solid rgba(184, 144, 74, 0.15); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
         .pipeline-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 9px; font-family: 'Raleway', sans-serif; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.25s ease; background: transparent; color: rgba(245, 241, 232, 0.5); }
         .pipeline-btn:hover { color: var(--cream); background: rgba(184, 144, 74, 0.08); }
@@ -155,6 +156,18 @@
         .status-accepted { background: rgba(74, 222, 128, 0.2); color: var(--success); }
         .status-rejected { background: rgba(248, 113, 113, 0.2); color: var(--danger); }
         .opp-footer { display: flex; justify-content: space-between; align-items: center; }
+
+        /* ── v1.1: Save/Star Button ── */
+        .save-btn { background: none; border: none; cursor: pointer; font-size: 1.25rem; color: rgba(245, 241, 232, 0.3); transition: all 0.2s ease; padding: 4px; line-height: 1; margin-left: 6px; flex-shrink: 0; }
+        .save-btn:hover { color: var(--warning); transform: scale(1.15); }
+        .save-btn.saved { color: var(--warning); }
+        .save-btn.saved:hover { color: #D97706; }
+        @keyframes savePulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .save-btn.just-saved { animation: savePulse 0.3s ease; }
+
+        /* ── v1.1: Filter Tab Count Badges ── */
+        .filter-btn .tab-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; opacity: 0.7; margin-left: 4px; }
+        .filter-btn.active .tab-count { opacity: 1; }
 
         /* ── Readiness Section ── */
         .readiness-overview { display: grid; grid-template-columns: 200px 1fr; gap: 32px; margin-bottom: 24px; }
@@ -216,6 +229,8 @@
         .activity-icon.created { background: rgba(74, 222, 128, 0.2); color: var(--success); }
         .activity-icon.updated { background: rgba(96, 165, 250, 0.2); color: var(--info); }
         .activity-icon.deleted { background: rgba(248, 113, 113, 0.2); color: var(--danger); }
+        .activity-icon.saved { background: rgba(251, 191, 36, 0.2); color: var(--warning); }
+        .activity-icon.unsaved { background: rgba(156, 163, 175, 0.2); color: #9CA3AF; }
         .activity-content { flex: 1; }
         .activity-text { font-size: 14px; color: var(--cream); margin-bottom: 4px; }
         .activity-time { font-size: 12px; color: rgba(245, 241, 232, 0.4); }
@@ -236,7 +251,6 @@
         .form-textarea { min-height: 100px; resize: vertical; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(184, 144, 74, 0.1); }
-        .form-optgroup-label { font-weight: 700; color: var(--bronze-light); }
 
         /* ── Toast ── */
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
@@ -270,7 +284,6 @@
         @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .readiness-overview { grid-template-columns: 1fr; } .readiness-score-circle { margin: 0 auto; } }
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); z-index: 100; transition: transform 0.3s ease; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 16px; } .stats-grid { grid-template-columns: 1fr; } .opportunities-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } .page-header { flex-direction: column; gap: 16px; } .pipeline-toggle { flex-direction: column; } }
 
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--navy); }
         ::-webkit-scrollbar-thumb { background: rgba(184, 144, 74, 0.3); border-radius: 4px; }
@@ -317,6 +330,12 @@
                     📋 BD Pipeline
                     <span class="nav-badge bd-badge" id="bd-count">0</span>
                 </a>
+                <!-- v1.1: Saved/Starred Opportunities -->
+                <a href="#" class="nav-item" id="nav-saved" data-section="opportunities" data-pipeline-nav="saved">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    ⭐ Saved
+                    <span class="nav-badge saved-badge" id="saved-count" style="display:none">0</span>
+                </a>
                 <a href="#" class="nav-item" data-section="readiness">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     Readiness Checklist
@@ -341,7 +360,6 @@
 
         <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
         <main class="main-content">
-
             <!-- ── Dashboard Section ── -->
             <section id="dashboard-section" class="section-content">
                 <div class="page-header">
@@ -352,37 +370,16 @@
                     </div>
                 </div>
                 <div class="stats-grid" id="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Active Opportunities</div>
-                        <div class="stat-value" id="stat-active-opps">-</div>
-                        <div class="stat-change neutral">Tracking <span id="stat-total-opps">-</span> total</div>
-                        <div class="stat-breakdown" id="stat-pipeline-breakdown"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Upcoming Deadlines</div>
-                        <div class="stat-value" id="stat-deadlines">-</div>
-                        <div class="stat-change neutral">Next 30 days</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Readiness Score</div>
-                        <div class="stat-value" id="stat-readiness">-<span style="font-size: 20px">%</span></div>
-                        <div class="stat-change positive" id="stat-completed">-/- items complete</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">🔒 Needs Check</div>
-                        <div class="stat-value" id="stat-auth-wall">-</div>
-                        <div class="stat-change neutral" id="stat-auth-wall-label">Items needing verification</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-label">Active Opportunities</div><div class="stat-value" id="stat-active-opps">-</div><div class="stat-change neutral">Tracking <span id="stat-total-opps">-</span> total</div><div class="stat-breakdown" id="stat-pipeline-breakdown"></div></div>
+                    <div class="stat-card"><div class="stat-label">Upcoming Deadlines</div><div class="stat-value" id="stat-deadlines">-</div><div class="stat-change neutral">Next 30 days</div></div>
+                    <div class="stat-card"><div class="stat-label">Readiness Score</div><div class="stat-value" id="stat-readiness">-<span style="font-size: 20px">%</span></div><div class="stat-change positive" id="stat-completed">-/- items complete</div></div>
+                    <div class="stat-card"><div class="stat-label">🔒 Needs Check</div><div class="stat-value" id="stat-auth-wall">-</div><div class="stat-change neutral" id="stat-auth-wall-label">Items needing verification</div></div>
                 </div>
                 <div class="section">
                     <div class="section-header"><h2 class="section-title">Readiness by Category</h2><a href="#" class="btn btn-secondary" data-section="readiness" style="padding: 8px 16px; font-size: 13px;">View All Items</a></div>
                     <div class="readiness-overview">
                         <div class="readiness-score-circle">
-                            <svg viewBox="0 0 180 180" class="score-ring">
-                                <defs><linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--bronze)"/><stop offset="100%" stop-color="var(--teal)"/></linearGradient></defs>
-                                <circle class="score-ring-bg" cx="90" cy="90" r="78"/>
-                                <circle class="score-ring-progress" cx="90" cy="90" r="78" stroke-dasharray="490" stroke-dashoffset="490" id="score-ring"/>
-                            </svg>
+                            <svg viewBox="0 0 180 180" class="score-ring"><defs><linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="var(--bronze)"/><stop offset="100%" stop-color="var(--teal)"/></linearGradient></defs><circle class="score-ring-bg" cx="90" cy="90" r="78"/><circle class="score-ring-progress" cx="90" cy="90" r="78" stroke-dasharray="490" stroke-dashoffset="490" id="score-ring"/></svg>
                             <div class="score-text"><div class="score-value" id="overall-score">0</div><div class="score-label">Overall</div></div>
                         </div>
                         <div class="category-bars" id="category-bars"></div>
@@ -401,19 +398,11 @@
                     <div class="header-actions"><button class="btn btn-primary" onclick="openModal('opportunity')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Opportunity</button></div>
                 </div>
                 <div class="section">
-                    <!-- Pipeline Toggle -->
                     <div class="pipeline-toggle">
-                        <button class="pipeline-btn active" data-pipeline="all" onclick="switchPipeline('all')">
-                            ✦ All <span class="pipe-count" id="pipe-count-all">0</span>
-                        </button>
-                        <button class="pipeline-btn" data-pipeline="startup" onclick="switchPipeline('startup')">
-                            🚀 Startup <span class="pipe-count" id="pipe-count-startup">0</span>
-                        </button>
-                        <button class="pipeline-btn" data-pipeline="bd" onclick="switchPipeline('bd')">
-                            📋 BD <span class="pipe-count" id="pipe-count-bd">0</span>
-                        </button>
+                        <button class="pipeline-btn active" data-pipeline="all" onclick="switchPipeline('all')">✦ All <span class="pipe-count" id="pipe-count-all">0</span></button>
+                        <button class="pipeline-btn" data-pipeline="startup" onclick="switchPipeline('startup')">🚀 Startup <span class="pipe-count" id="pipe-count-startup">0</span></button>
+                        <button class="pipeline-btn" data-pipeline="bd" onclick="switchPipeline('bd')">📋 BD <span class="pipe-count" id="pipe-count-bd">0</span></button>
                     </div>
-                    <!-- Type Filters (adapt based on pipeline) -->
                     <div class="checklist-filters" id="opp-type-filters"></div>
                     <div class="opportunities-grid" id="all-opportunities"></div>
                 </div>
@@ -421,10 +410,7 @@
 
             <!-- ── Readiness Section ── -->
             <section id="readiness-section" class="section-content" style="display: none;">
-                <div class="page-header">
-                    <div><h1 class="page-title">Readiness Checklist</h1><p class="page-subtitle">Track preparation items for funding applications</p></div>
-                    <div class="header-actions"><button class="btn btn-primary" onclick="openModal('readiness')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button></div>
-                </div>
+                <div class="page-header"><div><h1 class="page-title">Readiness Checklist</h1><p class="page-subtitle">Track preparation items for funding applications</p></div><div class="header-actions"><button class="btn btn-primary" onclick="openModal('readiness')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button></div></div>
                 <div class="section">
                     <div class="checklist-filters">
                         <button class="filter-btn active" data-filter="all" onclick="filterReadiness('all')">All</button>
@@ -453,30 +439,7 @@
                 <input type="hidden" id="opp-id">
                 <div class="form-group"><label class="form-label">Name *</label><input type="text" class="form-input" id="opp-name" required placeholder="e.g., EBRD Star Venture Programme"></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Type *</label>
-                        <select class="form-select" id="opp-type" required>
-                            <optgroup label="🚀 Startup">
-                                <option value="accelerator">Accelerator</option>
-                                <option value="grant">Grant</option>
-                                <option value="vc_fund">VC Fund</option>
-                                <option value="angel">Angel</option>
-                                <option value="corporate">Corporate</option>
-                                <option value="government">Government</option>
-                                <option value="competition">Competition</option>
-                                <option value="cloud_credits">Cloud Credits</option>
-                            </optgroup>
-                            <optgroup label="📋 Business Development">
-                                <option value="rfp">RFP</option>
-                                <option value="tender">Tender</option>
-                                <option value="consulting">Consulting</option>
-                                <option value="procurement">Procurement</option>
-                            </optgroup>
-                            <optgroup label="Other">
-                                <option value="other">Other</option>
-                            </optgroup>
-                        </select>
-                    </div>
+                    <div class="form-group"><label class="form-label">Type *</label><select class="form-select" id="opp-type" required><optgroup label="🚀 Startup"><option value="accelerator">Accelerator</option><option value="grant">Grant</option><option value="vc_fund">VC Fund</option><option value="angel">Angel</option><option value="corporate">Corporate</option><option value="government">Government</option><option value="competition">Competition</option><option value="cloud_credits">Cloud Credits</option></optgroup><optgroup label="📋 Business Development"><option value="rfp">RFP</option><option value="tender">Tender</option><option value="consulting">Consulting</option><option value="procurement">Procurement</option></optgroup><optgroup label="Other"><option value="other">Other</option></optgroup></select></div>
                     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="opp-status"><option value="researching">Researching</option><option value="preparing">Preparing</option><option value="submitted">Submitted</option><option value="in_review">In Review</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option><option value="closed">Closed</option></select></div>
                 </div>
                 <div class="form-row">
@@ -528,28 +491,21 @@
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : '/api';
         let opportunities = [], readinessItems = [], dashboardStats = null;
         let currentPipeline = 'all', currentTypeFilter = 'all', currentReadinessFilter = 'all';
+        let showingSavedOnly = false;  // v1.1
+        let typeCounts = {};           // v1.1
 
-        // ── Category Classification ──
         const STARTUP_TYPES = ['accelerator', 'grant', 'vc_fund', 'angel', 'competition', 'corporate', 'government', 'cloud_credits'];
         const BD_TYPES = ['rfp', 'tender', 'consulting', 'procurement'];
 
         function getCategory(opp) {
             if (BD_TYPES.includes(opp.type)) return 'bd';
             if (STARTUP_TYPES.includes(opp.type)) return 'startup';
-            // Fallback: check notes for tags
             const notes = (opp.notes || '').toLowerCase();
             if (notes.includes('📋 bd') || notes.includes('[📋 bd')) return 'bd';
-            if (notes.includes('🚀 startup') || notes.includes('[🚀 startup')) return 'startup';
-            return 'startup'; // default
+            return 'startup';
         }
-
-        function isAuthWall(opp) {
-            return (opp.notes || '').includes('🔒 NEEDS CHECK');
-        }
-
-        function getActiveOpps(list) {
-            return list.filter(o => !['rejected', 'closed'].includes(o.status));
-        }
+        function isAuthWall(opp) { return (opp.notes || '').includes('🔒 NEEDS CHECK'); }
+        function getActiveOpps(list) { return list.filter(o => !['rejected', 'closed'].includes(o.status)); }
 
         // ── API ──
         async function fetchAPI(endpoint, options = {}) {
@@ -564,6 +520,52 @@
         async function loadOpportunities() { try { opportunities = await fetchAPI('/opportunities'); updateOpportunitiesUI(); updateSidebarCounts(); } catch (e) { console.error(e); } }
         async function loadReadinessItems() { try { readinessItems = await fetchAPI('/readiness-items'); updateReadinessUI(); const urgentCount = readinessItems.filter(item => { if (!item.due_date || item.status === 'complete') return false; const diffDays = (new Date(item.due_date) - new Date()) / (1000 * 60 * 60 * 24); return diffDays <= 7; }).length; document.getElementById('urgent-count').textContent = urgentCount; } catch (e) { console.error(e); } }
         async function loadActivityLog() { try { const activities = await fetchAPI('/activity-log?limit=50'); updateActivityUI(activities); } catch (e) { console.error(e); } }
+
+        // ── v1.1: Fetch Counts from API ──
+        async function fetchCounts() {
+            try {
+                const pipelineParam = (currentPipeline !== 'all' && !showingSavedOnly) ? `?pipeline=${currentPipeline}` : '';
+                const data = await fetchAPI(`/opportunities/counts-by-type${pipelineParam}`);
+                typeCounts = data.counts || {};
+                // Update saved count badge in sidebar
+                const savedBadge = document.getElementById('saved-count');
+                const totalSaved = data.saved_count || 0;
+                if (savedBadge) {
+                    savedBadge.textContent = totalSaved;
+                    savedBadge.style.display = totalSaved > 0 ? '' : 'none';
+                }
+            } catch (e) { console.error('fetchCounts error:', e); }
+        }
+
+        // ── v1.1: Toggle Save/Star ──
+        async function toggleSave(event, oppId) {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            try {
+                const result = await fetchAPI(`/opportunities/${oppId}/toggle-save`, { method: 'PUT' });
+                // Update local data
+                const opp = opportunities.find(o => o.id === oppId);
+                if (opp) opp.is_saved = result.is_saved;
+                // Update button
+                btn.classList.toggle('saved', result.is_saved);
+                btn.innerHTML = result.is_saved ? '★' : '☆';
+                btn.title = result.is_saved ? 'Unsave' : 'Save';
+                btn.classList.add('just-saved');
+                setTimeout(() => btn.classList.remove('just-saved'), 300);
+                // Refresh counts
+                await fetchCounts();
+                // If viewing saved-only and just unsaved, remove the card
+                if (showingSavedOnly && !result.is_saved) {
+                    const card = btn.closest('.opportunity-card');
+                    if (card) {
+                        card.style.transition = 'opacity 0.3s, transform 0.3s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => { card.remove(); }, 300);
+                    }
+                }
+            } catch (e) { showToast('Failed to update save status', 'error'); }
+        }
 
         // ── Sidebar Counts ──
         function updateSidebarCounts() {
@@ -582,7 +584,6 @@
             const startupCount = active.filter(o => getCategory(o) === 'startup').length;
             const bdCount = active.filter(o => getCategory(o) === 'bd').length;
             const authWallCount = opportunities.filter(o => isAuthWall(o)).length;
-
             document.getElementById('stat-active-opps').textContent = dashboardStats.active_opportunities;
             document.getElementById('stat-total-opps').textContent = dashboardStats.total_opportunities;
             document.getElementById('stat-deadlines').textContent = dashboardStats.upcoming_deadlines;
@@ -591,153 +592,120 @@
             document.getElementById('stat-auth-wall').textContent = authWallCount;
             document.getElementById('stat-auth-wall-label').textContent = authWallCount === 0 ? 'All items verified' : 'Items needing verification';
             if (authWallCount === 0) document.getElementById('stat-auth-wall-label').className = 'stat-change positive';
-
-            // Pipeline breakdown
-            document.getElementById('stat-pipeline-breakdown').innerHTML = `
-                <span class="stat-breakdown-item stat-breakdown-startup">🚀 ${startupCount}</span>
-                <span class="stat-breakdown-item stat-breakdown-bd">📋 ${bdCount}</span>
-            `;
-
+            document.getElementById('stat-pipeline-breakdown').innerHTML = `<span class="stat-breakdown-item stat-breakdown-startup">🚀 ${startupCount}</span><span class="stat-breakdown-item stat-breakdown-bd">📋 ${bdCount}</span>`;
             const score = dashboardStats.overall_readiness_score, circumference = 2 * Math.PI * 78, offset = circumference - (score / 100 * circumference);
             document.getElementById('score-ring').style.strokeDashoffset = offset;
             document.getElementById('overall-score').textContent = Math.round(score);
-
             const categoryBars = document.getElementById('category-bars');
             categoryBars.innerHTML = '';
             ['legal', 'financial', 'pitch', 'team', 'product', 'market', 'operations', 'documentation'].forEach(cat => {
                 const data = dashboardStats.readiness_by_category[cat];
                 if (data) categoryBars.innerHTML += `<div class="category-bar"><span class="category-name">${cat}</span><div class="progress-track"><div class="progress-fill" style="width: ${data.avg_completion}%"></div></div><span class="category-percent">${Math.round(data.avg_completion)}%</span></div>`;
             });
-
-            // Priority opportunities — show top 4 from any pipeline
-            document.getElementById('top-opportunities').innerHTML = getActiveOpps(opportunities)
-                .sort((a, b) => a.priority - b.priority || b.fit_score - a.fit_score)
-                .slice(0, 4)
-                .map(opp => createOpportunityCard(opp)).join('');
-
+            document.getElementById('top-opportunities').innerHTML = getActiveOpps(opportunities).sort((a, b) => a.priority - b.priority || b.fit_score - a.fit_score).slice(0, 4).map(opp => createOpportunityCard(opp)).join('');
             document.getElementById('last-sync').textContent = new Date().toLocaleTimeString();
         }
 
         // ── Pipeline & Filter Logic ──
         function switchPipeline(pipeline) {
             currentPipeline = pipeline;
-            currentTypeFilter = 'all'; // reset type filter on pipeline switch
-
-            // Update pipeline toggle buttons
-            document.querySelectorAll('.pipeline-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.pipeline === pipeline);
-            });
-
-            // Update subtitle
+            currentTypeFilter = 'all';
+            showingSavedOnly = false;
+            document.querySelectorAll('.pipeline-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.pipeline === pipeline); });
+            document.getElementById('nav-saved').classList.remove('active');
             const subtitles = { all: 'Track and manage potential funding sources', startup: '🚀 Startup funding — accelerators, grants, VC, competitions', bd: '📋 Business development — RFPs, tenders, consulting' };
             document.getElementById('opp-subtitle').textContent = subtitles[pipeline];
-
-            renderTypeFilters();
+            fetchCounts().then(() => renderTypeFilters());
             updateOpportunitiesUI();
         }
 
         function renderTypeFilters() {
             const container = document.getElementById('opp-type-filters');
             let types = [];
-
             if (currentPipeline === 'all') {
                 types = [
-                    { value: 'all', label: 'All' },
-                    { value: '_sep_', label: '' },
-                    { value: 'accelerator', label: 'Accelerators' },
-                    { value: 'grant', label: 'Grants' },
-                    { value: 'vc_fund', label: 'VC Funds' },
-                    { value: 'competition', label: 'Competitions' },
-                    { value: 'cloud_credits', label: 'Cloud Credits' },
-                    { value: '_sep2_', label: '' },
-                    { value: 'rfp', label: 'RFPs' },
-                    { value: 'tender', label: 'Tenders' },
-                    { value: 'consulting', label: 'Consulting' },
-                    { value: 'procurement', label: 'Procurement' },
-                    { value: '_sep3_', label: '' },
-                    { value: '_auth_wall_', label: '🔒 Needs Check' },
+                    { value: 'all', label: 'All' }, { value: '_sep_', label: '' },
+                    { value: 'accelerator', label: 'Accelerators' }, { value: 'grant', label: 'Grants' },
+                    { value: 'vc_fund', label: 'VC Funds' }, { value: 'competition', label: 'Competitions' },
+                    { value: 'cloud_credits', label: 'Cloud Credits' }, { value: '_sep2_', label: '' },
+                    { value: 'rfp', label: 'RFPs' }, { value: 'tender', label: 'Tenders' },
+                    { value: 'consulting', label: 'Consulting' }, { value: 'procurement', label: 'Procurement' },
+                    { value: '_sep3_', label: '' }, { value: '_auth_wall_', label: '🔒 Needs Check' },
                 ];
             } else if (currentPipeline === 'startup') {
                 types = [
                     { value: 'all', label: 'All Startup' },
-                    { value: 'accelerator', label: 'Accelerators' },
-                    { value: 'grant', label: 'Grants' },
-                    { value: 'vc_fund', label: 'VC Funds' },
-                    { value: 'angel', label: 'Angel' },
-                    { value: 'competition', label: 'Competitions' },
-                    { value: 'corporate', label: 'Corporate' },
-                    { value: 'government', label: 'Government' },
-                    { value: 'cloud_credits', label: 'Cloud Credits' },
-                    { value: '_sep_', label: '' },
-                    { value: '_auth_wall_', label: '🔒 Needs Check' },
+                    { value: 'accelerator', label: 'Accelerators' }, { value: 'grant', label: 'Grants' },
+                    { value: 'vc_fund', label: 'VC Funds' }, { value: 'angel', label: 'Angel' },
+                    { value: 'competition', label: 'Competitions' }, { value: 'corporate', label: 'Corporate' },
+                    { value: 'government', label: 'Government' }, { value: 'cloud_credits', label: 'Cloud Credits' },
+                    { value: '_sep_', label: '' }, { value: '_auth_wall_', label: '🔒 Needs Check' },
                 ];
             } else if (currentPipeline === 'bd') {
                 types = [
                     { value: 'all', label: 'All BD' },
-                    { value: 'rfp', label: 'RFPs' },
-                    { value: 'tender', label: 'Tenders' },
-                    { value: 'consulting', label: 'Consulting' },
-                    { value: 'procurement', label: 'Procurement' },
-                    { value: '_sep_', label: '' },
-                    { value: '_auth_wall_', label: '🔒 Needs Check' },
+                    { value: 'rfp', label: 'RFPs' }, { value: 'tender', label: 'Tenders' },
+                    { value: 'consulting', label: 'Consulting' }, { value: 'procurement', label: 'Procurement' },
+                    { value: '_sep_', label: '' }, { value: '_auth_wall_', label: '🔒 Needs Check' },
                 ];
             }
-
             container.innerHTML = types.map(t => {
                 if (t.value.startsWith('_sep')) return '<div class="filter-separator"></div>';
                 const isActive = currentTypeFilter === t.value ? 'active' : '';
-                return `<button class="filter-btn ${isActive}" data-filter="${t.value}" onclick="filterOpportunities('${t.value}')">${t.label}</button>`;
+                // v1.1: Show count badge
+                let countBadge = '';
+                if (t.value === 'all') {
+                    const total = Object.values(typeCounts).reduce((sum, c) => sum + c, 0);
+                    countBadge = `<span class="tab-count">${total}</span>`;
+                } else if (t.value === '_auth_wall_') {
+                    const authCount = opportunities.filter(o => isAuthWall(o)).length;
+                    countBadge = authCount > 0 ? `<span class="tab-count">${authCount}</span>` : '';
+                } else {
+                    const count = typeCounts[t.value] || 0;
+                    countBadge = `<span class="tab-count">${count}</span>`;
+                }
+                return `<button class="filter-btn ${isActive}" data-filter="${t.value}" onclick="filterOpportunities('${t.value}')">${t.label} ${countBadge}</button>`;
             }).join('');
         }
 
         function filterOpportunities(type) {
             currentTypeFilter = type;
-            document.querySelectorAll('#opp-type-filters .filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === type);
-            });
+            showingSavedOnly = false;
+            document.getElementById('nav-saved').classList.remove('active');
+            document.querySelectorAll('#opp-type-filters .filter-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.filter === type); });
             updateOpportunitiesUI();
         }
 
         function getFilteredOpportunities() {
             let filtered = [...opportunities];
-
-            // Pipeline filter
-            if (currentPipeline === 'startup') {
-                filtered = filtered.filter(o => getCategory(o) === 'startup');
-            } else if (currentPipeline === 'bd') {
-                filtered = filtered.filter(o => getCategory(o) === 'bd');
+            // v1.1: Saved filter
+            if (showingSavedOnly) {
+                return filtered.filter(o => o.is_saved);
             }
-
-            // Type filter
-            if (currentTypeFilter === '_auth_wall_') {
-                filtered = filtered.filter(o => isAuthWall(o));
-            } else if (currentTypeFilter !== 'all') {
-                filtered = filtered.filter(o => o.type === currentTypeFilter);
-            }
-
+            if (currentPipeline === 'startup') filtered = filtered.filter(o => getCategory(o) === 'startup');
+            else if (currentPipeline === 'bd') filtered = filtered.filter(o => getCategory(o) === 'bd');
+            if (currentTypeFilter === '_auth_wall_') filtered = filtered.filter(o => isAuthWall(o));
+            else if (currentTypeFilter !== 'all') filtered = filtered.filter(o => o.type === currentTypeFilter);
             return filtered;
         }
 
         function updateOpportunitiesUI() {
             const filtered = getFilteredOpportunities();
-
-            // Update pipe counts
             const active = getActiveOpps(opportunities);
             document.getElementById('pipe-count-all').textContent = active.length;
             document.getElementById('pipe-count-startup').textContent = active.filter(o => getCategory(o) === 'startup').length;
             document.getElementById('pipe-count-bd').textContent = active.filter(o => getCategory(o) === 'bd').length;
-
             const container = document.getElementById('all-opportunities');
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">${currentPipeline === 'bd' ? '📋' : currentPipeline === 'startup' ? '🚀' : '✦'}</div><div class="empty-state-text">No opportunities match this filter</div></div>`;
+                const icon = showingSavedOnly ? '⭐' : currentPipeline === 'bd' ? '📋' : currentPipeline === 'startup' ? '🚀' : '✦';
+                const text = showingSavedOnly ? 'No saved opportunities yet — star opportunities to save them here' : 'No opportunities match this filter';
+                container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">${icon}</div><div class="empty-state-text">${text}</div></div>`;
             } else {
-                container.innerHTML = filtered
-                    .sort((a, b) => a.priority - b.priority || b.fit_score - a.fit_score)
-                    .map(opp => createOpportunityCard(opp)).join('');
+                container.innerHTML = filtered.sort((a, b) => a.priority - b.priority || b.fit_score - a.fit_score).map(opp => createOpportunityCard(opp)).join('');
             }
         }
 
-        // ── Opportunity Card ──
+        // ── Opportunity Card (v1.1: includes star button) ──
         function createOpportunityCard(opp) {
             const fitClass = opp.fit_score >= 75 ? 'fit-high' : opp.fit_score >= 50 ? 'fit-medium' : 'fit-low';
             const deadlineInfo = getDeadlineInfo(opp.deadline);
@@ -745,26 +713,22 @@
             const authWall = isAuthWall(opp);
             const typeLabel = opp.type.replace(/_/g, ' ');
             const typeClass = category === 'bd' ? 'bd-type' : 'startup-type';
-
-            const categoryBadge = category === 'bd'
-                ? '<span class="opp-category-badge badge-bd">📋 BD</span>'
-                : '<span class="opp-category-badge badge-startup">🚀 Startup</span>';
-
-            const authBadge = authWall
-                ? '<span class="opp-category-badge badge-auth-wall">🔒 Needs Check</span>'
-                : '';
+            const categoryBadge = category === 'bd' ? '<span class="opp-category-badge badge-bd">📋 BD</span>' : '<span class="opp-category-badge badge-startup">🚀 Startup</span>';
+            const authBadge = authWall ? '<span class="opp-category-badge badge-auth-wall">🔒 Needs Check</span>' : '';
+            // v1.1: Star button
+            const isSaved = opp.is_saved;
+            const starBtn = `<button class="save-btn ${isSaved ? 'saved' : ''}" onclick="toggleSave(event, ${opp.id})" title="${isSaved ? 'Unsave' : 'Save'}">${isSaved ? '★' : '☆'}</button>`;
 
             return `<div class="opportunity-card${authWall ? ' auth-wall' : ''}" onclick="editOpportunity(${opp.id})">
                 <div class="opp-header">
                     <div>
                         <div class="opp-name">${escapeHtml(opp.name)}</div>
-                        <div class="opp-type-row">
-                            <span class="opp-type ${typeClass}">${typeLabel}</span>
-                            ${categoryBadge}
-                            ${authBadge}
-                        </div>
+                        <div class="opp-type-row"><span class="opp-type ${typeClass}">${typeLabel}</span>${categoryBadge}${authBadge}</div>
                     </div>
-                    <div class="opp-fit-score ${fitClass}">${opp.fit_score}</div>
+                    <div style="display:flex;align-items:flex-start;gap:4px;">
+                        <div class="opp-fit-score ${fitClass}">${opp.fit_score}</div>
+                        ${starBtn}
+                    </div>
                 </div>
                 <div class="opp-meta">
                     ${opp.deadline ? `<span class="opp-deadline ${deadlineInfo.class}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${deadlineInfo.text}</span>` : '<span class="opp-deadline">No deadline</span>'}
@@ -773,17 +737,12 @@
                 <div class="opp-footer">
                     <span class="opp-status status-${opp.status}">${opp.status.replace(/_/g, ' ')}</span>
                     <span class="priority-badge priority-${opp.priority}">P${opp.priority}</span>
-                    <button onclick="event.stopPropagation(); deleteOpportunity(${opp.id}, '${escapeHtml(opp.name).replace(/'/g, "\\'")}')" class="btn-delete" title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
+                    <button onclick="event.stopPropagation(); deleteOpportunity(${opp.id}, '${escapeHtml(opp.name).replace(/'/g, "\\'")}')" class="btn-delete" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                 </div>
             </div>`;
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
         // ── Readiness UI ──
         function updateReadinessUI() {
@@ -797,8 +756,8 @@
 
         function updateActivityUI(activities) {
             document.getElementById('activity-feed').innerHTML = activities.map(activity => {
-                const iconClass = activity.action === 'created' ? 'created' : activity.action === 'updated' ? 'updated' : 'deleted';
-                const icon = activity.action === 'created' ? '+' : activity.action === 'updated' ? '✎' : '×';
+                let iconClass = activity.action === 'created' ? 'created' : activity.action === 'updated' ? 'updated' : activity.action === 'saved' ? 'saved' : activity.action === 'unsaved' ? 'unsaved' : 'deleted';
+                const icon = activity.action === 'created' ? '+' : activity.action === 'updated' ? '✎' : activity.action === 'saved' ? '★' : activity.action === 'unsaved' ? '☆' : '×';
                 return `<div class="activity-item"><div class="activity-icon ${iconClass}">${icon}</div><div class="activity-content"><div class="activity-text"><strong>${activity.action}</strong> ${activity.entity_type.replace(/_/g, ' ')} ${activity.details ? `- ${escapeHtml(activity.details)}` : ''}</div><div class="activity-time">${formatDateTime(activity.timestamp)}</div></div></div>`;
             }).join('');
         }
@@ -812,7 +771,6 @@
             if (diffDays <= 30) return { text: `${diffDays}d left`, class: '' };
             return { text: date.toLocaleDateString(), class: '' };
         }
-
         function formatDateTime(dateStr) {
             const date = new Date(dateStr), now = new Date(), diffMs = now - date, diffMins = Math.floor(diffMs / 60000), diffHours = Math.floor(diffMs / 3600000), diffDays = Math.floor(diffMs / 86400000);
             if (diffMins < 1) return 'Just now'; if (diffMins < 60) return `${diffMins}m ago`; if (diffHours < 24) return `${diffHours}h ago`; if (diffDays < 7) return `${diffDays}d ago`; return date.toLocaleDateString();
@@ -885,9 +843,16 @@
                 const isMatch = item.dataset.section === sectionId && (!pipelineNav || item.dataset.pipelineNav === pipelineNav);
                 item.classList.toggle('active', isMatch);
             });
-
-            // If navigating to opportunities via sidebar pipeline shortcuts
-            if (sectionId === 'opportunities' && pipelineNav) {
+            // v1.1: Handle saved nav
+            if (sectionId === 'opportunities' && pipelineNav === 'saved') {
+                showingSavedOnly = true;
+                currentTypeFilter = 'all';
+                document.querySelectorAll('.pipeline-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('opp-subtitle').textContent = '⭐ Your saved opportunities';
+                fetchCounts().then(() => renderTypeFilters());
+                updateOpportunitiesUI();
+            } else if (sectionId === 'opportunities' && pipelineNav) {
+                showingSavedOnly = false;
                 switchPipeline(pipelineNav);
             }
         }
@@ -897,7 +862,8 @@
         async function refreshData() {
             const btn = document.querySelector('button[onclick="refreshData()"]');
             if (btn) { btn.disabled = true; const svg = btn.querySelector('svg'); if (svg) svg.style.animation = 'spin 1s linear infinite'; }
-            await Promise.all([loadOpportunities(), loadReadinessItems(), loadDashboardStats(), loadActivityLog()]);
+            await Promise.all([loadOpportunities(), loadReadinessItems(), loadDashboardStats(), loadActivityLog(), fetchCounts()]);
+            renderTypeFilters();
             if (btn) { btn.disabled = false; const svg = btn.querySelector('svg'); if (svg) svg.style.animation = ''; }
             showToast('Data refreshed!', 'success');
         }
@@ -916,8 +882,6 @@
                 overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
             });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(modal => { modal.classList.remove('active'); }); });
-
-            // Initial render of type filters
             renderTypeFilters();
             refreshData();
             setInterval(refreshData, 5 * 60 * 1000);
